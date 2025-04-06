@@ -252,102 +252,27 @@ function saveProtocols(protocolsText) {
   localStorage.setItem('textareaHighlighterProtocols', JSON.stringify(protocols));
 }
 
-// New function to highlight text matches before replacement
-function highlightMatchesInTextarea(textarea, protocols) {
-  // Get the current value of the textarea
+// Function to apply protocols
+function applyProtocols(textarea, protocols) {
   let content = textarea.value;
-  let originalContent = content;
   
-  // Create a proxy textarea element to handle highlighting
-  const tempElement = document.createElement('div');
-  tempElement.style.whiteSpace = 'pre-wrap';
-  tempElement.style.wordBreak = 'break-word';
-  tempElement.style.width = textarea.offsetWidth + 'px';
-  tempElement.style.height = textarea.offsetHeight + 'px';
-  tempElement.style.overflow = 'auto';
-  tempElement.style.position = 'absolute';
-  tempElement.style.top = '0';
-  tempElement.style.left = '0';
-  tempElement.style.backgroundColor = textarea.style.backgroundColor || 'white';
-  tempElement.style.padding = window.getComputedStyle(textarea).padding;
-  tempElement.style.font = window.getComputedStyle(textarea).font;
-  tempElement.style.border = textarea.style.border;
-  tempElement.style.zIndex = '9999';
+  // Store the original content if not already stored
+  if (!textarea.hasAttribute('data-original-content')) {
+    textarea.setAttribute('data-original-content', content);
+  }
   
-  // Apply highlighting for each protocol
+  // Apply each protocol
   protocols.forEach(protocol => {
     const regex = new RegExp(protocol.from, 'g');
-    content = content.replace(regex, `<span style="background-color: lightyellow;">${protocol.from}</span>`);
+    content = content.replace(regex, protocol.to);
   });
   
-  // Set the HTML content with highlighting
-  tempElement.innerHTML = content;
-  
-  // Position the temporary element over the textarea
-  textarea.style.position = 'relative';
-  
-  // Store the original content
-  textarea.setAttribute('data-temp-original', originalContent);
-  
-  // Add the temporary element
-  textarea.parentElement.appendChild(tempElement);
-  
-  // Store reference to the highlight overlay
-  textarea.highlightOverlay = tempElement;
-  
-  // Make the textarea semi-transparent to show the highlighting
-  textarea.style.opacity = '0.001';
-  
-  // Return the temporary element for later removal
-  return tempElement;
-}
-
-// Function to remove the highlight overlay
-function removeHighlightOverlay(textarea) {
-  if (textarea.highlightOverlay) {
-    textarea.highlightOverlay.remove();
-    textarea.highlightOverlay = null;
-    textarea.style.opacity = '1';
-  }
-}
-
-// Modified function to apply protocols with highlighting
-function applyProtocols(textarea, protocols) {
-  // First remove any existing highlight overlay
-  removeHighlightOverlay(textarea);
-  
-  // Then highlight matches
-  const overlay = highlightMatchesInTextarea(textarea, protocols);
-  
-  // Show the highlighting for a moment (1 second)
-  setTimeout(() => {
-    // Remove the overlay
-    removeHighlightOverlay(textarea);
-    
-    // Continue with the original replacement logic
-    let content = textarea.value;
-    
-    // Store the original content if not already stored
-    if (!textarea.hasAttribute('data-original-content')) {
-      textarea.setAttribute('data-original-content', content);
-    }
-    
-    // Apply each protocol
-    protocols.forEach(protocol => {
-      const regex = new RegExp(protocol.from, 'g');
-      content = content.replace(regex, protocol.to);
-    });
-    
-    // Update textarea content
-    textarea.value = content;
-  }, 1000);
+  // Update textarea content
+  textarea.value = content;
 }
 
 // Function to revert text
 function revertText(textarea) {
-  // Remove any highlight overlay first
-  removeHighlightOverlay(textarea);
-  
   const originalContent = textarea.getAttribute('data-original-content');
   if (originalContent) {
     textarea.value = originalContent;
@@ -401,13 +326,10 @@ function removeHighlights() {
   });
 }
 
-// Updated helper function to remove highlight from a single textarea
+// Helper function to remove highlight from a single textarea
 function removeHighlightFromTextarea(textarea) {
   textarea.style.border = textarea.getAttribute('data-original-border') || '';
   textarea.style.boxShadow = textarea.getAttribute('data-original-boxShadow') || '';
-  
-  // Remove the highlight overlay if it exists
-  removeHighlightOverlay(textarea);
   
   // Remove buttons container if it exists
   if (textarea.buttonsContainer) {
@@ -433,7 +355,6 @@ function removeHighlightFromTextarea(textarea) {
   textarea.removeAttribute('data-has-buttons');
   textarea.removeAttribute('data-original-border');
   textarea.removeAttribute('data-original-boxShadow');
-  textarea.removeAttribute('data-temp-original');
   // Don't remove data-original-content in case they want to revert later
 }
 
