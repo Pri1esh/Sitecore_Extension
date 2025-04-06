@@ -20,44 +20,52 @@ const defaultProtocols = [
 // Function to highlight all textareas including those in iframes
 function highlightTextareas() {
   console.log("Extension running - highlighting textareas");
-  
+
   // Count total textareas highlighted
   let totalTextareasHighlighted = 0;
-  
-  // Highlight textareas in main document
+
+  // Highlight textareas in the main document
   const mainTextareas = document.querySelectorAll('textarea');
   mainTextareas.forEach(textarea => {
     highlightTextarea(textarea);
     totalTextareasHighlighted++;
   });
-  
+
   // Try to access iframes
   const iframes = document.querySelectorAll('iframe');
   console.log(`Found ${iframes.length} iframes`);
-  
+
   iframes.forEach((iframe, index) => {
     try {
       // Only proceed if we can access the iframe content (same origin)
       if (iframe.contentDocument) {
         console.log(`Accessing iframe ${index}`);
-        const iframeTextareas = iframe.contentDocument.querySelectorAll('textarea');
-        console.log(`Found ${iframeTextareas.length} textareas in iframe ${index}`);
-        
-        iframeTextareas.forEach(textarea => {
-          highlightTextarea(textarea);
-          totalTextareasHighlighted++;
-        });
-        
-        // Also try to get iframe's iframes recursively
-        tryHighlightNestedIframes(iframe.contentDocument);
+
+        // Check if this iframe contains the specific div
+        const targetDiv = iframe.contentDocument.querySelector('.scStretch.scFlexColumnContainer');
+        if (targetDiv) {
+          console.log(`Found the target div in iframe ${index}`);
+
+          // Highlight textareas within the target div inside this iframe
+          const iframeTextareas = targetDiv.querySelectorAll('textarea');
+          console.log(`Found ${iframeTextareas.length} textareas inside the target div`);
+
+          iframeTextareas.forEach(textarea => {
+            highlightTextarea(textarea);
+            totalTextareasHighlighted++;
+          });
+        } else {
+          console.log(`No target div found in iframe ${index}`);
+        }
       }
     } catch (error) {
       console.log(`Cannot access iframe ${index}: ${error.message}`);
     }
   });
-  
+
   return totalTextareasHighlighted;
 }
+
 
 // Helper function to highlight a single textarea and add buttons
 function highlightTextarea(textarea) {
@@ -82,17 +90,20 @@ function highlightTextarea(textarea) {
   buttonsContainer.style.zIndex = '10000';
   
   // Create C button (Change)
-  const changeButton = createButton('C', 'red', function() {
+  const changeButton = createButton('C', 'red', function(e) {
+    e.preventDefault();
     applyProtocols(textarea, getProtocols());
   });
   
   // Create R button (Revert)
-  const revertButton = createButton('R', 'skyblue', function() {
+  const revertButton = createButton('R', 'skyblue', function(e) {
+    e.preventDefault();
     revertText(textarea);
   });
   
   // Create P button (Protocol)
-  const protocolButton = createButton('P', 'green', function() {
+  const protocolButton = createButton('P', 'green', function(e) {
+    e.preventDefault();
     toggleProtocolEditor(textarea);
   });
   
@@ -160,7 +171,7 @@ function toggleProtocolEditor(textarea) {
     protocolEditor.style.padding = '10px';
     protocolEditor.style.borderRadius = '5px';
     protocolEditor.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    protocolEditor.style.zIndex = '10001';
+    protocolEditor.style.zIndex = '10010';
     protocolEditor.style.width = '250px';
     
     // Protocol editor title
@@ -188,7 +199,8 @@ function toggleProtocolEditor(textarea) {
     applyButton.style.padding = '5px 10px';
     applyButton.style.borderRadius = '3px';
     applyButton.style.cursor = 'pointer';
-    applyButton.addEventListener('click', function() {
+    applyButton.addEventListener('click', function(e) {
+      e.preventDefault();
       saveProtocols(protocolTextarea.value);
       applyProtocols(textarea, getProtocols());
       protocolEditor.style.display = 'none';
@@ -205,7 +217,8 @@ function toggleProtocolEditor(textarea) {
     closeButton.style.borderRadius = '3px';
     closeButton.style.cursor = 'pointer';
     closeButton.style.marginLeft = '5px';
-    closeButton.addEventListener('click', function() {
+    closeButton.addEventListener('click', function(e) {
+    e.preventDefault();
       protocolEditor.style.display = 'none';
     });
     protocolEditor.appendChild(closeButton);
