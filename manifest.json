@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Pritesh's Sitecore OverWrite",
   "version": "1.0",
-  "description": "Highlights textareas on webpages with a red border, including those inside iframes",
+  "description": "Edit, replace word or text in Sitecore rich text",
   "permissions": [
     "activeTab"
   ],
