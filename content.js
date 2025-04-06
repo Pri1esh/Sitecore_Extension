@@ -12,9 +12,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 // Default protocols for text replacement
 const defaultProtocols = [
-  { from: 'owl', to: 'bootstrape' },
-  { from: 'pl', to: 'ps' },
-  { from: 'pr', to: 'pe' }
+  {from : 'data-toggle' , to : 'data-bs-toggle'},
+  {from : 'data-dismiss' , to : 'data-bs-dismiss'},
+  {from : 'data-target' , to : 'data-bs-target'},
+  {from : 'data-placement' , to : 'data-bs-placement'},
+  {from : 'data-backdrop' , to : 'data-bs-backdrop'},
+  {from : 'data-keyboard' , to : 'data-bs-keyboard'},
+  {from : 'data-parent' , to : 'data-bs-parent'},
+  {from : 'owl-' , to : 'bootstrape-'},
+  {from : 'owlCarousel' , to : 'bootstrapeCarousel'},
+  {from : 'owlthumb' , to : 'bootstrapethumb'}
 ];
 
 // Function to highlight all textareas including those in iframes
