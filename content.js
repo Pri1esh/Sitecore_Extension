@@ -24,19 +24,11 @@ const defaultProtocols = [
   {from : 'owlthumb' , to : 'bootstrapethumb'}
 ];
 
-// Function to highlight all textareas including those in iframes
+// Function to highlight all textareas inside iframes with the specific div
 function highlightTextareas() {
   console.log("Extension running - highlighting textareas");
 
-  // Count total textareas highlighted
   let totalTextareasHighlighted = 0;
-
-  // Highlight textareas in the main document
-  const mainTextareas = document.querySelectorAll('textarea');
-  mainTextareas.forEach(textarea => {
-    highlightTextarea(textarea);
-    totalTextareasHighlighted++;
-  });
 
   // Try to access iframes
   const iframes = document.querySelectorAll('iframe');
@@ -48,19 +40,19 @@ function highlightTextareas() {
       if (iframe.contentDocument) {
         console.log(`Accessing iframe ${index}`);
 
-        // Check if this iframe contains the specific div
+        // Check if this iframe contains the div with the class 'scStretch scFlexColumnContainer'
         const targetDiv = iframe.contentDocument.querySelector('.scStretch.scFlexColumnContainer');
         if (targetDiv) {
           console.log(`Found the target div in iframe ${index}`);
 
-          // Highlight textareas within the target div inside this iframe
-          const iframeTextareas = targetDiv.querySelectorAll('textarea');
-          console.log(`Found ${iframeTextareas.length} textareas inside the target div`);
-
-          iframeTextareas.forEach(textarea => {
-            highlightTextarea(textarea);
+          // Highlight the textarea inside this div (assuming there is one textarea)
+          const iframeTextarea = targetDiv.querySelector('textarea');
+          if (iframeTextarea) {
+            highlightTextarea(iframeTextarea);
             totalTextareasHighlighted++;
-          });
+          } else {
+            console.log(`No textarea found inside the target div in iframe ${index}`);
+          }
         } else {
           console.log(`No target div found in iframe ${index}`);
         }
@@ -72,7 +64,6 @@ function highlightTextareas() {
 
   return totalTextareasHighlighted;
 }
-
 
 // Helper function to highlight a single textarea and add buttons
 function highlightTextarea(textarea) {
@@ -160,14 +151,11 @@ function createButton(text, bgColor, clickHandler) {
 
 // Function to toggle protocol editor
 function toggleProtocolEditor(textarea) {
-  // Check if protocol editor already exists
   let protocolEditor = textarea.protocolEditor;
   
   if (protocolEditor) {
-    // If it exists, toggle its visibility
     protocolEditor.style.display = protocolEditor.style.display === 'none' ? 'block' : 'none';
   } else {
-    // Create new protocol editor
     protocolEditor = document.createElement('div');
     protocolEditor.className = 'protocol-editor';
     protocolEditor.style.position = 'absolute';
@@ -181,14 +169,12 @@ function toggleProtocolEditor(textarea) {
     protocolEditor.style.zIndex = '10010';
     protocolEditor.style.width = '250px';
     
-    // Protocol editor title
     const title = document.createElement('h4');
     title.textContent = 'Edit Protocols';
     title.style.margin = '0 0 10px 0';
     title.style.fontSize = '14px';
     protocolEditor.appendChild(title);
     
-    // Create textarea for protocols
     const protocolTextarea = document.createElement('textarea');
     protocolTextarea.value = getProtocolsAsText();
     protocolTextarea.style.width = '100%';
@@ -197,7 +183,6 @@ function toggleProtocolEditor(textarea) {
     protocolTextarea.style.resize = 'vertical';
     protocolEditor.appendChild(protocolTextarea);
     
-    // Create apply button
     const applyButton = document.createElement('button');
     applyButton.textContent = 'Apply Protocols';
     applyButton.style.backgroundColor = '#4CAF50';
@@ -214,7 +199,6 @@ function toggleProtocolEditor(textarea) {
     });
     protocolEditor.appendChild(applyButton);
     
-    // Create close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.style.backgroundColor = '#f44336';
@@ -225,15 +209,13 @@ function toggleProtocolEditor(textarea) {
     closeButton.style.cursor = 'pointer';
     closeButton.style.marginLeft = '5px';
     closeButton.addEventListener('click', function(e) {
-    e.preventDefault();
+      e.preventDefault();
       protocolEditor.style.display = 'none';
     });
     protocolEditor.appendChild(closeButton);
     
-    // Add protocol editor to the textarea's parent
     textarea.parentElement.appendChild(protocolEditor);
     
-    // Store reference to the protocol editor
     textarea.protocolEditor = protocolEditor;
   }
 }
@@ -276,18 +258,15 @@ function saveProtocols(protocolsText) {
 function applyProtocols(textarea, protocols) {
   let content = textarea.value;
   
-  // Store the original content if not already stored
   if (!textarea.hasAttribute('data-original-content')) {
     textarea.setAttribute('data-original-content', content);
   }
   
-  // Apply each protocol
   protocols.forEach(protocol => {
     const regex = new RegExp(protocol.from, 'g');
     content = content.replace(regex, protocol.to);
   });
   
-  // Update textarea content
   textarea.value = content;
 }
 
@@ -299,46 +278,19 @@ function revertText(textarea) {
   }
 }
 
-// Function to try highlighting nested iframes recursively
-function tryHighlightNestedIframes(doc) {
-  const nestedIframes = doc.querySelectorAll('iframe');
-  nestedIframes.forEach((nestedIframe, index) => {
-    try {
-      if (nestedIframe.contentDocument) {
-        const nestedTextareas = nestedIframe.contentDocument.querySelectorAll('textarea');
-        nestedTextareas.forEach(textarea => {
-          highlightTextarea(textarea);
-        });
-        
-        // Go deeper if needed
-        tryHighlightNestedIframes(nestedIframe.contentDocument);
-      }
-    } catch (error) {
-      console.log(`Cannot access nested iframe: ${error.message}`);
-    }
-  });
-}
-
-// Function to remove highlights from all textareas including those in iframes
+// Function to remove highlights from all textareas inside iframes with the specific div
 function removeHighlights() {
-  // Remove highlights from main document
-  const mainTextareas = document.querySelectorAll('textarea');
-  mainTextareas.forEach(textarea => {
-    removeHighlightFromTextarea(textarea);
-  });
-  
-  // Try to access iframes
   const iframes = document.querySelectorAll('iframe');
   iframes.forEach((iframe, index) => {
     try {
       if (iframe.contentDocument) {
-        const iframeTextareas = iframe.contentDocument.querySelectorAll('textarea');
-        iframeTextareas.forEach(textarea => {
-          removeHighlightFromTextarea(textarea);
-        });
-        
-        // Also try to get iframe's iframes recursively
-        tryRemoveHighlightsNestedIframes(iframe.contentDocument);
+        const targetDiv = iframe.contentDocument.querySelector('.scStretch.scFlexColumnContainer');
+        if (targetDiv) {
+          const iframeTextarea = targetDiv.querySelector('textarea');
+          if (iframeTextarea) {
+            removeHighlightFromTextarea(iframeTextarea);
+          }
+        }
       }
     } catch (error) {
       console.log(`Cannot access iframe ${index} for removal: ${error.message}`);
@@ -351,19 +303,16 @@ function removeHighlightFromTextarea(textarea) {
   textarea.style.border = textarea.getAttribute('data-original-border') || '';
   textarea.style.boxShadow = textarea.getAttribute('data-original-boxShadow') || '';
   
-  // Remove buttons container if it exists
   if (textarea.buttonsContainer) {
     textarea.buttonsContainer.remove();
     textarea.buttonsContainer = null;
   }
   
-  // Remove protocol editor if it exists
   if (textarea.protocolEditor) {
     textarea.protocolEditor.remove();
     textarea.protocolEditor = null;
   }
   
-  // Restore parent position if needed
   const textareaParent = textarea.parentElement;
   const originalPosition = textareaParent.getAttribute('data-original-position');
   if (originalPosition) {
@@ -371,34 +320,7 @@ function removeHighlightFromTextarea(textarea) {
     textareaParent.removeAttribute('data-original-position');
   }
   
-  // Remove data attributes
   textarea.removeAttribute('data-has-buttons');
   textarea.removeAttribute('data-original-border');
   textarea.removeAttribute('data-original-boxShadow');
-  // Don't remove data-original-content in case they want to revert later
-}
-
-// Function to try removing highlights from nested iframes recursively
-function tryRemoveHighlightsNestedIframes(doc) {
-  const nestedIframes = doc.querySelectorAll('iframe');
-  nestedIframes.forEach((nestedIframe, index) => {
-    try {
-      if (nestedIframe.contentDocument) {
-        const nestedTextareas = nestedIframe.contentDocument.querySelectorAll('textarea');
-        nestedTextareas.forEach(textarea => {
-          removeHighlightFromTextarea(textarea);
-        });
-        
-        // Go deeper if needed
-        tryRemoveHighlightsNestedIframes(nestedIframe.contentDocument);
-      }
-    } catch (error) {
-      console.log(`Cannot access nested iframe for removal: ${error.message}`);
-    }
-  });
-}
-
-// Initialize protocols if they don't exist yet
-if (!localStorage.getItem('textareaHighlighterProtocols')) {
-  localStorage.setItem('textareaHighlighterProtocols', JSON.stringify(defaultProtocols));
 }

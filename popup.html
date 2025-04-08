@@ -1,41 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Textarea Highlighter</title>
   <style>
+    /* Base styling for the body */
     body {
-      width: 200px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      box-shadow: 0 .25rem .5rem #0000001a;
-      font-family: Arial, sans-serif;
+      width: 220px;
+      padding: 15px;
+      margin: 0;
+      background: linear-gradient(135deg, #f0f9ff, #cbebf7); /* Soothing gradient background */
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #333;
     }
-    button {
-      width: 100%;
-      padding: 8px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #3b78e7;
-    }
-    #status {
-      margin-top: 10px;
-      font-size: 14px;
+
+    /* Styling for the heading */
+    h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 15px;
       text-align: center;
+      font-weight: 600;
     }
+
+    /* Flex container for buttons to align them in a row */
+    .button-container {
+      display: flex;
+      justify-content: space-between; /* Space buttons evenly */
+      width: 100%; /* Ensure the buttons fill the width of the container */
+    }
+
+    /* Button styling */
+    button {
+      padding: 8px 18px;
+      border-radius: 50px; /* Pill-shaped button */
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s ease;
+      color: white;
+    }
+
+    /* Info button (light blue color) */
+    #highlight {
+      background-color: #17a2b8; /* Info color */
+      flex: 1; /* Take equal space */
+      margin-right: 5px; /* Add space between buttons */
+    }
+
+    #highlight:hover {
+      background-color: #138496;
+      transform: translateY(-2px);
+    }
+
+    /* Remove button (light red color) */
+    #remove {
+      background-color: #f39c12; /* Warm yellow for remove */
+      flex: 1; /* Take equal space */
+      margin-left: 5px; /* Add space between buttons */
+    }
+
+    #remove:hover {
+      background-color: #e67e22;
+      transform: translateY(-2px);
+    }
+
+    /* Status message styling */
+    #status {
+      margin-top: 12px;
+      font-size: 13px;
+      text-align: center;
+      color: #555;
+    }
+
+    /* Smooth transition effect for status */
+    #status.fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
   </style>
 </head>
 <body>
-  <h3>Sitecore Overwrites</h3>
-  <button id="highlight">Highlight</button>
-  <button id="remove">Remove</button>
+  <h3>Richtext Editor</h3>
+
+  <!-- Button container to arrange buttons in a row -->
+  <div class="button-container">
+    <!-- <button id="highlight">Highlight</button> -->
+    <button id="remove">Remove</button>
+  </div>
+
   <div id="status"></div>
+
   <script src="popup.js"></script>
 </body>
 </html>
